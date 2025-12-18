@@ -79,6 +79,47 @@ export async function POST(request: Request) {
 
         const amount = (data.amount || mockTransactions[reference]?.amount || 0) / 100;
         
+        // 🤖 AI ANALYSIS - Analyze the order using OpenAI
+        let aiAnalysis;
+        try {
+          console.log("🤖 Starting AI analysis for order:", reference);
+          const { analyzeOrder, requiresAdminNotification } = await import("@/lib/ai/orderAnalyzer");
+          
+          aiAnalysis = await analyzeOrder({
+            orderNumber: reference,
+            customerName: meta.userName || meta.customerName || data.customer?.email || "Customer",
+            email: data.customer?.email || meta.userEmail || "no-email@example.com",
+            totalPrice: amount,
+            products: products.map((p: any) => ({
+              name: p.name || "Unknown Product",
+              price: p.price || 0,
+              quantity: p.quantity || 1,
+            })),
+            clerkUserId: meta.userId || meta.clerkUserId,
+            metadata: meta,
+          });
+          
+          console.log("✅ AI analysis complete:", aiAnalysis);
+          
+          // 🚨 ADMIN NOTIFICATION - Alert admin if order requires attention
+          if (requiresAdminNotification(aiAnalysis)) {
+            console.log("🚨 Order requires admin notification");
+            const { notifyAdmin } = await import("@/lib/notifications/adminNotifier");
+            
+            await notifyAdmin({
+              orderNumber: reference,
+              customerName: meta.userName || meta.customerName || data.customer?.email || "Customer",
+              email: data.customer?.email || meta.userEmail || "no-email@example.com",
+              totalPrice: amount,
+              analysis: aiAnalysis,
+            });
+          }
+          
+        } catch (aiError) {
+          console.error("⚠️ AI analysis failed, continuing without it:", aiError);
+          // Don't fail the entire webhook if AI analysis fails
+        }
+        
         const orderId = await createOrder({
           orderNumber: reference,
           paystackReference: reference,
@@ -94,6 +135,7 @@ export async function POST(request: Request) {
           amountDiscount: meta.discount || 0,
           status: "paid",
           metadata: meta,
+          aiAnalysis, // Include AI analysis if available
         });
         
         console.log(`Webhook: Order created successfully. ID: ${orderId}`);

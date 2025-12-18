@@ -6,16 +6,18 @@ import Image from "next/image";
 import { imageUrl } from "@/lib/imageUrl";
 import { useUser, SignInButton } from "@clerk/nextjs";
 
-import { validateCoupon } from "@/app/actions/validateCoupon";
+// import { validateCoupon } from "@/app/actions/validateCoupon";
 
 export default function CheckoutPage() {
-  const { items, totalPrice } = useCart();
+  const { items, totalPrice, discountedTotal, activeSale } = useCart();
   const { user } = useUser();
 
-  const [promoCode, setPromoCode] = useState("");
-  const [discount, setDiscount] = useState(0);
+//   const [promoCode, setPromoCode] = useState("");
+//   const [discount, setDiscount] = useState(0);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
+
+  const globalDiscountAmount = activeSale?.isActive ? activeSale.discountAmount : 0;
 
   if (!user) {
     return (
@@ -23,7 +25,7 @@ export default function CheckoutPage() {
         <h1 className="text-2xl font-bold mb-4">Checkout</h1>
         <p className="text-gray-600 mb-4">Please sign in to proceed with checkout.</p>
         <SignInButton mode="redirect">
-          <button className="bg-blue-600 text-white px-6 py-2 rounded">Sign In</button>
+          <button className="bg-purple-600 text-white px-10 py-3 rounded-full font-bold shadow-lg hover:bg-purple-700 transition-all">Sign In</button>
         </SignInButton>
       </div>
     );
@@ -38,28 +40,31 @@ export default function CheckoutPage() {
     );
   }
 
-  const applyPromoCode = async () => {
-    if (!promoCode) return;
-    try {
-      const result = await validateCoupon(promoCode);
-      if (result.isValid && result.discountAmount) {
-        setDiscount(result.discountAmount / 100);
-        setError("");
-      } else {
-        setDiscount(0);
-        setError(result.message || "Invalid promo code");
-        setTimeout(() => setError(""), 3000);
-      }
-    } catch (error) {
-      console.error("Error applying promo code:", error);
-      setDiscount(0);
-      setError("Failed to apply promo code");
-    }
-  };
+//   const applyPromoCode = async () => {
+//     if (!promoCode) return;
+//     try {
+//       const result = await validateCoupon(promoCode);
+//       if (result.isValid && result.discountAmount) {
+//         setDiscount(result.discountAmount / 100);
+//         setError("");
+//       } else {
+//         setDiscount(0);
+//         setError(result.message || "Invalid promo code");
+//         setTimeout(() => setError(""), 3000);
+//       }
+//     } catch (error) {
+//       console.error("Error applying promo code:", error);
+//       setDiscount(0);
+//       setError("Failed to apply promo code");
+//     }
+//   };
 
-  const subtotal = totalPrice;
-  const discountAmount = subtotal * discount;
-  const total = subtotal - discountAmount;
+  // If a manual promo code is applied, it overrides or stacks. 
+  // For simplicity and based on user request "base on the promo amount", 
+  // I will use the discountedTotal as the baseline.
+  const subtotal = discountedTotal; 
+  // const extraDiscountAmount = subtotal * discount;
+  const total = subtotal; // - extraDiscountAmount;
   const totalInKobo = Math.round(total * 100); // Paystack expects amount in kobo
 
   const handlePayment = async () => {
@@ -79,15 +84,19 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           email: user.primaryEmailAddress.emailAddress,
           amount: totalInKobo,
-          items: items.map((it) => ({
-            id: it.product._id,
-            name: it.product.name,
-            quantity: it.quantity,
-            price: it.product.price,
-            image: it.product.image,
-          })),
-          promoCode: promoCode || null,
-          discount: discountAmount,
+          items: items.map((it) => {
+             const price = it.product.price ?? 0;
+             const discountedPrice = globalDiscountAmount > 0 ? price * (1 - globalDiscountAmount / 100) : price;
+             return {
+                id: it.product._id,
+                name: it.product.name,
+                quantity: it.quantity,
+                price: discountedPrice,
+                image: it.product.image,
+             };
+          }),
+          promoCode: null, // promoCode || null,
+          discount: (totalPrice - discountedTotal), // extraDiscountAmount + (totalPrice - discountedTotal),
           clerkUserId: user.id,
           customerName: user.fullName || user.firstName || "",
         }),
@@ -121,10 +130,14 @@ export default function CheckoutPage() {
         <div className="lg:col-span-2">
           <h2 className="text-xl font-semibold mb-4">Order Items</h2>
           <ul className="space-y-4">
-            {items.map((it) => (
+            {items.map((it) => {
+              const price = it.product.price ?? 0;
+              const discountedPrice = globalDiscountAmount > 0 ? price * (1 - globalDiscountAmount / 100) : price;
+              
+              return (
               <li
                 key={it.product._id}
-                className="flex items-start space-x-3 bg-white p-4 rounded shadow-sm"
+                className="flex items-start space-x-3 bg-white p-4 rounded shadow-sm border border-gray-100"
               >
                 <div className="w-20 h-20 bg-gray-100 rounded overflow-hidden flex-shrink-0 relative">
                   {it.product.image && (
@@ -138,17 +151,23 @@ export default function CheckoutPage() {
                   )}
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium">{it.product.name}</div>
-                  <div className="text-sm text-gray-500">
-                    ₦{(it.product.price ?? 0).toLocaleString("en-NG")}
+                  <div className="font-bold text-gray-900">{it.product.name}</div>
+                  <div className="flex items-center space-x-2 text-sm">
+                    {globalDiscountAmount > 0 && (
+                      <span className="text-gray-400 line-through">₦{price.toLocaleString("en-NG")}</span>
+                    )}
+                    <span className="text-purple-600 font-bold">
+                       ₦{discountedPrice.toLocaleString("en-NG")}
+                    </span>
                   </div>
-                  <div className="text-sm text-gray-600">Qty: {it.quantity}</div>
-                  <div className="text-sm text-gray-700 font-medium">
-                    Subtotal: ₦{((it.product.price ?? 0) * it.quantity).toLocaleString("en-NG")}
+                  <div className="text-sm text-gray-500">Qty: {it.quantity}</div>
+                  <div className="text-sm text-gray-700 font-bold mt-1">
+                    Subtotal: ₦{(discountedPrice * it.quantity).toLocaleString("en-NG")}
                   </div>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </div>
 
@@ -162,12 +181,12 @@ export default function CheckoutPage() {
               <span className="font-medium">₦{subtotal.toLocaleString("en-NG")}</span>
             </div>
 
-            {discount > 0 && (
+            {/* {discount > 0 && (
               <div className="flex justify-between text-green-600">
                 <span>Discount ({Math.round(discount * 100)}%):</span>
-                <span className="font-medium">-₦{discountAmount.toLocaleString("en-NG")}</span>
+                <span className="font-medium">-₦{extraDiscountAmount.toLocaleString("en-NG")}</span>
               </div>
-            )}
+            )} */}
 
             <div className="border-t pt-3 flex justify-between font-bold text-lg">
               <span>Total:</span>
@@ -175,8 +194,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Promo Code */}
-          <div className="mb-4">
+{/*           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">Promo Code</label>
             <div className="flex space-x-2">
               <input
@@ -194,16 +212,16 @@ export default function CheckoutPage() {
               </button>
             </div>
             {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-            <p className="text-xs text-gray-500 mt-1">Try: BFRIDAY</p>
-          </div>
+            <p className="text-xs text-gray-500 mt-1">Try: BUIKECH1</p>
+          </div> */}
 
           {/* Payment Button */}
           <button
             onClick={handlePayment}
             disabled={processing}
-            className="w-full py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold rounded-lg hover:shadow-lg transition disabled:opacity-50"
+            className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-2xl font-bold shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
           >
-            {processing ? "Processing..." : "Pay Now"}
+            {processing ? "Processing..." : "PAY NOW"}
           </button>
 
           {error && <p className="text-red-500 text-sm mt-2 text-center">{error}</p>}

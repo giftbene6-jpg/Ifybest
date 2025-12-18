@@ -6,6 +6,8 @@ import { getAllCategories } from "@/sanity/lib/products/getAllCategories";
 
 
 
+import { getActiveSale } from "@/sanity/lib/sales/getActiveSale";
+
 async function Page({
   searchParams,
 }: {
@@ -17,6 +19,7 @@ async function Page({
   const { query, category } = await searchParams;
   const products = await searchProductsByName(query, category);
   const categories = await getAllCategories();
+  const sale = await getActiveSale();
 
   return (
     <div className="flex flex-col items-center justify-top min-h-screen bg-gray-100 p-4">
@@ -28,7 +31,7 @@ async function Page({
             <p className="text-gray-600">Try different keywords or select another category.</p>
           </div>
         ) : (
-          <ProductsView products={products} categories={categories} />
+          <ProductsView products={products} categories={categories} sale={sale} />
         )}
       </div>
     </div>

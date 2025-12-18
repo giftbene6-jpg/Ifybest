@@ -37,28 +37,28 @@ const AddToBasketButton: React.FC<AddToBasketButtonProps> = ({ product, disabled
       <button
         onClick={handleAddToCart}
         disabled={disabled}
-        className={`w-full py-2 rounded text-white font-semibold ${
+        className={`w-full py-3 px-6 rounded-xl text-sm font-bold transition-all duration-300 shadow-md ${
           disabled
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-gradient-to-r from-yellow-400 to-orange-500 text-black hover:shadow-lg transition-shadow"
+            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+            : "bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
         }`}
       >
-        {disabled ? "Out of stock" : "Add to basket"}
+        {disabled ? "Sold Out" : "Add to Basket"}
       </button>
 
-      {/* Toast (fixed top-center) */}
+      {/* Toast Notification */}
       <div
         role="status"
         aria-live="polite"
         aria-hidden={!showToast}
-        className={`pointer-events-none fixed top-6 left-1/2 transform -translate-x-1/2 px-6 py-2 rounded-lg bg-green-600 text-white text-lg font-bold shadow-2xl z-50 transition-all duration-300 ${
-          showToast ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-3"
+        className={`pointer-events-none fixed bottom-12 left-1/2 transform -translate-x-1/2 px-8 py-3 bg-gray-900 text-white text-sm font-bold rounded-full shadow-2xl z-50 transition-all duration-500 ${
+          showToast ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
         }`}
       >
-        Added to Basket
+        ✨ Added to your Basket!
       </div>
     </div>
   );
-};
+}
 
 export default AddToBasketButton;

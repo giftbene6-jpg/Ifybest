@@ -137,6 +137,60 @@ export const orderType = defineType({
       type: "text",
       rows: 3,
     }),
+    // AI Analysis Fields
+    defineField({
+      name: "aiSummary",
+      title: "AI Order Summary",
+      type: "text",
+      description: "AI-generated 2-3 line summary of the order",
+      rows: 3,
+    }),
+    defineField({
+      name: "customerType",
+      title: "Customer Type",
+      type: "string",
+      description: "AI classification of customer",
+      options: {
+        list: [
+          { title: "New Customer", value: "new" },
+          { title: "Returning Customer", value: "returning" },
+          { title: "VIP Customer", value: "vip" },
+        ],
+      },
+    }),
+    defineField({
+      name: "riskLevel",
+      title: "Risk Level",
+      type: "string",
+      description: "AI-assessed fraud/risk level",
+      options: {
+        list: [
+          { title: "Low Risk", value: "low" },
+          { title: "Medium Risk", value: "medium" },
+          { title: "High Risk", value: "high" },
+        ],
+      },
+    }),
+    defineField({
+      name: "riskFlags",
+      title: "Risk Flags",
+      type: "array",
+      description: "Specific risk indicators identified by AI",
+      of: [{ type: "string" }],
+    }),
+    defineField({
+      name: "aiAnalyzedAt",
+      title: "AI Analysis Timestamp",
+      type: "datetime",
+      description: "When the AI analysis was performed",
+    }),
+    defineField({
+      name: "aiConfidence",
+      title: "AI Confidence Score",
+      type: "number",
+      description: "AI confidence in analysis (0-1)",
+      validation: (Rule) => Rule.min(0).max(1),
+    }),
   ],
   preview: {
     select: {

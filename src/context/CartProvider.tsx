@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Product } from "../../sanity.types";
+import { client } from "@/sanity/lib/client";
 
 type CartItem = {
   product: Product;
@@ -16,6 +17,8 @@ type CartContextValue = {
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
+  discountedTotal: number;
+  activeSale: any;
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
@@ -29,6 +32,7 @@ const STORAGE_KEY = "chips_cart_v1";
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [activeSale, setActiveSale] = useState<any>(null);
 
   useEffect(() => {
     try {
@@ -37,6 +41,17 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (e) {
       console.error("Failed to read cart from storage", e);
     }
+
+    // Fetch active sale for price slashing
+    const fetchSale = async () => {
+      try {
+        const sale = await client.fetch(`*[_type == "sale" && isActive == true] | order(validFrom desc)[0]`);
+        setActiveSale(sale);
+      } catch (err) {
+        console.error("Error fetching sale in CartProvider:", err);
+      }
+    };
+    fetchSale();
   }, []);
 
   useEffect(() => {
@@ -76,6 +91,9 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const totalItems = items.reduce((s, i) => s + i.quantity, 0);
   const totalPrice = items.reduce((s, i) => s + (i.product.price ?? 0) * i.quantity, 0);
+  
+  const discountAmount = (activeSale?.isActive) ? activeSale.discountAmount : 0;
+  const discountedTotal = discountAmount > 0 ? totalPrice * (1 - discountAmount / 100) : totalPrice;
 
   const openCart = () => setIsOpen(true);
   const closeCart = () => setIsOpen(false);
@@ -91,6 +109,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         clearCart,
         totalItems,
         totalPrice,
+        discountedTotal,
+        activeSale,
         isOpen,
         openCart,
         closeCart,

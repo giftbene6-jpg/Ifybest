@@ -1,4 +1,5 @@
 import { backendClient } from "@/sanity/lib/backendClient";
+import { OrderAnalysis } from "../ai/orderAnalyzer";
 
 export interface OrderData {
   orderNumber: string;
@@ -24,6 +25,8 @@ export interface OrderData {
   orderDate?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: any;
+  // AI Analysis fields (optional)
+  aiAnalysis?: OrderAnalysis;
 }
 
 export async function createOrder(orderData: OrderData) {
@@ -62,6 +65,15 @@ export async function createOrder(orderData: OrderData) {
     status: orderData.status,
     orderDate: orderData.orderDate || new Date().toISOString(),
     metadata: orderData.metadata ? JSON.stringify(orderData.metadata) : undefined,
+    // AI Analysis fields
+    ...(orderData.aiAnalysis && {
+      aiSummary: orderData.aiAnalysis.summary,
+      customerType: orderData.aiAnalysis.customerType,
+      riskLevel: orderData.aiAnalysis.riskLevel,
+      riskFlags: orderData.aiAnalysis.riskFlags,
+      aiAnalyzedAt: new Date().toISOString(),
+      aiConfidence: orderData.aiAnalysis.confidence,
+    }),
   };
 
   const createdOrder = await backendClient.create(orderDoc);

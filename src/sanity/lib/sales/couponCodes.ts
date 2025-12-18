@@ -1,5 +1,5 @@
 export const COUPON_CODES = {
-  BFRIDAY: "BFRIDAY",
+  BUIKECH1: "BUIKECH1",
   XMAS2021: "XMAS2021",
   NY2022: "NY2022",
 } as const;

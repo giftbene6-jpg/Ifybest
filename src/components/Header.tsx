@@ -23,78 +23,71 @@ TO KNOW IF USER IS LOGGED IN
 
 
   return (
-  <header 
-  className="flex flex-wrap justify-between px-4 py-2">
-    {/*top row */}
-    <div className="flex w-full flex-wrap justify-between items-center px-4 py-2">
-      <Link href="/"
-      className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 hover:opacity-80 cursor-pointer mx-auto sm:mx-0 transition-opacity">Ifybest</Link>
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-6 py-4 flex flex-wrap justify-between items-center transition-all duration-300">
+      {/* Brand Section */}
+      <Link 
+        href="/"
+        className="text-3xl font-black tracking-tighter premium-gradient-text hover:opacity-80 transition-all duration-300 mx-auto sm:mx-0"
+      >
+        IFYBEST
+      </Link>
 
-
-
-
-      <form action="/search" method="GET" className="w-full sm:w-auto sm:flex-1 sm:mx-4 mt-2 sm:mt-0">
-        <div className="relative w-full max-w-4xl">
+      {/* Search Bar */}
+      <form action="/search" method="GET" className="w-full sm:w-auto sm:flex-1 sm:mx-8 mt-4 sm:mt-0">
+        <div className="relative group">
           <input 
             name="query" 
             type="text" 
-            placeholder="search for products" 
-            className="bg-gray-100 text-gray-800 px-4 py-2 pr-12 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50 border w-full" 
+            placeholder="Search for products..." 
+            className="w-full bg-gray-50 border border-gray-200 px-5 py-2.5 rounded-full text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400/50 transition-all duration-300" 
           />
-          <button type="submit" className="absolute right-0 top-0 h-full px-4 text-gray-500 hover:text-black hover:bg-yellow-400 transition-colors rounded-r-md">
-            <SearchIcon className="w-5 h-5" />
+          <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-purple-600 transition-colors">
+            <SearchIcon className="w-6 h-6" />
           </button>
         </div>
       </form>
 
-
-
-
-      <div className="flex items-center space-x-4 mt-0 flex-1 sm:flex-none ">
+      {/* Navigation & User Area */}
+      <div className="flex items-center space-x-6 mt-4 sm:mt-0">
         <Link
           href="/basket"
-          className="relative flex justify-center sm:justify-start sm:flex-none items-center space-x-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold py-2 px-4 rounded hover:shadow-lg transition-shadow"
+          className="relative flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors duration-300"
         >
-          <TrolleyIcon className="w-6 h-6"/>
-          <span>My Basket</span>
-          {totalItems > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">{totalItems}</span>
-          )}
+          <div className="relative">
+            <TrolleyIcon className="w-7 h-7"/>
+            {totalItems > 0 && (
+              <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">
+                {totalItems}
+              </span>
+            )}
+          </div>
+          <span className="text-sm font-semibold hidden sm:block">Basket</span>
         </Link>
 
-        {/*user area . Only if the user exists AND HAS AN ACCOUNT ALREADY then we use clerkload and package*/}
+        {/* user area */}
         <ClerkLoaded>
           <SignedIn>
-            <Link href="/orders" className="flex-1 relative flex justify-center sm:justify-start sm:flex-none items-center
-            space-x-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold py-2 px-4 rounded hover:shadow-lg transition-shadow">
-              <PackageIcon className="w-6 h-6"/>
-              <span>My Orders</span>
+            <Link href="/orders" className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors duration-300">
+              <PackageIcon className="w-7 h-7"/>
+              <span className="text-sm font-semibold hidden sm:block">Orders</span>
             </Link>
-        </SignedIn>
+          </SignedIn>
 
-{/*use this when the user does not exist to create an account */}
           {user ? (
-            <div className="flex items-center space-x-2">
-              <UserButton/>
-              <div className="hidden sm:block text-xs">
-                <p className="text-gray-400 ">Signed in</p>
-               {/* <p className="font-bold">{user.fullName}!</p>*/}
-              </div>
+            <div className="flex items-center space-x-3 border-l border-gray-100 pl-6">
+              <UserButton appearance={{ elements: { userButtonAvatarBox: "w-9 h-9 border-2 border-purple-100" } }} />
             </div>
-          ):(
-            <SignInButton mode="modal"/>
+          ) : (
+            <div className="border-l border-gray-100 pl-6">
+              <SignInButton mode="modal">
+                <button className="classic-button !py-2 !px-6 !text-xs">Sign In</button>
+              </SignInButton>
+            </div>
           )}
-
-          
         </ClerkLoaded>
-          </div>
- 
-    </div>
-
-    
-  </header>
-  
-        )
+      </div>
+    </header>
+  );
 }
 
 export default Header

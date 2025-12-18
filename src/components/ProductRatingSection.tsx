@@ -38,8 +38,8 @@ const ProductRatingSection: React.FC<ProductRatingSectionProps> = ({ product }) 
   return (
     <div className="mt-4 flex items-center gap-2">
       <StarRating rating={currentRating} onChange={handleRatingChange} />
-      <span className="text-sm font-semibold text-gray-500">
-        ({ratingCount} {ratingCount === 1 ? 'rating' : 'ratings'})
+      <span className="text-sm font-bold text-gray-400">
+        ({ratingCount} {ratingCount === 1 ? 'Rating' : 'Ratings'})
       </span>
     </div>
   );

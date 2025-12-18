@@ -11,18 +11,26 @@
     "webhook:test": "npx ngrok http 3000"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.88",
+    "@ai-sdk/react": "^2.0.117",
     "@clerk/nextjs": "^6.34.3",
     "@sanity/icons": "^3.7.4",
     "@sanity/image-url": "^1.2.0",
     "@sanity/vision": "^4.13.0",
+    "ai": "^5.0.115",
     "dotenv": "^17.2.3",
+    "framer-motion": "^12.23.26",
+    "lucide-react": "^0.562.0",
     "next": "^16.0.10",
     "next-sanity": "^11.6.4",
+    "openai": "^6.14.0",
     "paystack": "^2.0.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
+    "resend": "^6.6.0",
     "sanity": "^4.13.0",
-    "styled-components": "^6.1.19"
+    "styled-components": "^6.1.19",
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@types/node": "^20",
