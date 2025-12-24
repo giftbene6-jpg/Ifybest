@@ -25,7 +25,7 @@ const Footer = () => {
       } else {
         setStatus("error");
       }
-    } catch (err) {
+    } catch {
       setStatus("error");
     }
   };

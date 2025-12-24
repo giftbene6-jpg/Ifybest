@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { mockTransactions } from "@/lib/paystack";
-import { backendClient } from "@/sanity/lib/backendClient";
+// import { backendClient } from "@/sanity/lib/backendClient";
 
 export async function GET(req: Request) {
   try {
@@ -13,39 +13,35 @@ export async function GET(req: Request) {
 
     mockTransactions[reference] = { ...tx, status: "success", paidAt: Date.now() };
 
-    // Create order in Sanity if token present
+    // Determine the base URL dynamically from the request headers
+    const host = req.headers.get("host") || "localhost:3000";
+    const protocol = host.includes("localhost") ? "http" : "https";
+    const base = `${protocol}://${host}`;
+
+    // Simulate webhook call to create order
     try {
-      const items = Array.isArray(tx.metadata?.items) ? tx.metadata.items : [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const products = items.map((it: any) => ({ _type: "object", product: { _type: "reference", _ref: it.id }, quantity: it.quantity || 1 }));
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const orderDoc: any = {
-        _type: "order",
-        orderNumber: reference,
-        paystackReference: reference,
-        paystackTransactionId: `MOCK-${reference}`,
-        paystackCustomerId: tx.metadata?.clerkUserId || "mock-user",
-        clerkUserId: tx.metadata?.clerkUserId || "mock-user",
-        customerName: tx.metadata?.customerName || "Mock Customer",
-        email: tx.email,
-        promoCode: tx.metadata?.promoCode || null,
-        products,
-        totalPrice: (tx.amount || 0) / 100,
-        currency: "NGN",
-        amountDiscount: tx.metadata?.discount || 0,
-        status: "paid",
-        orderDate: new Date().toISOString(),
-      };
-
-      if (process.env.SANITY_API_TOKEN) {
-        await backendClient.create(orderDoc);
-      }
+      // Use internal localhost for the webhook call if possible to avoid ngrok limits/latency
+      const webhookBase = host.includes("localhost") ? base : "http://localhost:3000";
+      await fetch(`${webhookBase}/api/webhook/paystack`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-paystack-signature": "mock-signature",
+        },
+        body: JSON.stringify({
+          event: "charge.success",
+          data: {
+            reference,
+            amount: tx.amount,
+            customer: { email: tx.email },
+            metadata: tx.metadata || {},
+          },
+        }),
+      });
     } catch (err) {
-      console.error("Failed creating order in Sanity", err);
+      console.error("Failed to trigger mock webhook during redirect", err);
     }
 
-    const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     return NextResponse.redirect(`${base}/checkout/success?reference=${encodeURIComponent(reference)}`);
   } catch (err) {
     console.error("mock redirect error", err);

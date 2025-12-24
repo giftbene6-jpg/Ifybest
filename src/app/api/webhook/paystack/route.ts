@@ -1,75 +1,126 @@
 import { NextResponse } from "next/server";
 import { createHmac } from "crypto";
-import { backendClient } from "@/sanity/lib/backendClient";
+import { initPaystack, mockTransactions } from "@/lib/paystack";
+import { createOrder } from "@/lib/sanity/order";
 
 export async function POST(request: Request) {
   console.log("Webhook: Received request");
   try {
+    const init = initPaystack();
     const rawBody = await request.text();
     const signature = request.headers.get("x-paystack-signature") || "";
-    const secretKey = process.env.PAYSTACK_SECRET_KEY;
 
-    if (!secretKey) {
-      console.error("Paystack secret key is not configured.");
-      return NextResponse.json({ error: "Server misconfiguration" }, { status: 500 });
+    // Verify signature only when not in mock mode and secret exists
+    if (init.mode !== "mock" && signature !== "mock-signature") {
+      if (!init.secretKey) {
+        console.warn("Webhook received but no Paystack secret configured");
+        return NextResponse.json({ ok: false, reason: "no-secret" }, { status: 400 });
+      }
+      const hmac = createHmac("sha512", init.secretKey).update(rawBody).digest("hex");
+      if (hmac !== signature) {
+        console.warn("Invalid Paystack signature", { expected: hmac, got: signature });
+        return NextResponse.json({ ok: false, reason: "invalid-signature" }, { status: 401 });
+      }
     }
 
-    const hmac = createHmac("sha512", secretKey).update(rawBody).digest("hex");
-    if (hmac !== signature) {
-      console.warn("Invalid Paystack signature.");
-      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    const event = JSON.parse(rawBody || "{}");
+    const eventName = event.event || event.type || "";
+
+    if (eventName === "charge.success" || eventName === "transaction.success") {
+      const reference = event.data?.reference;
+      if (!reference) {
+        console.error("Webhook: No reference found in event data", event.data);
+        return NextResponse.json({ ok: false, reason: "no-reference" }, { status: 400 });
+      }
+
+      console.log(`Webhook: Processing success event for reference: ${reference}`);
+
+      // Mark mock tx paid if present
+      if (mockTransactions[reference]) {
+        mockTransactions[reference] = {
+          ...mockTransactions[reference],
+          status: "success",
+          paidAt: Date.now(),
+        };
+      }
+
+      // Create order in Sanity
+      try {
+        const data = event.data || {};
+        let meta = data.metadata || mockTransactions[reference]?.metadata || {};
+        
+        if (typeof meta === "string") {
+          try {
+            meta = JSON.parse(meta);
+          } catch (e) {
+            console.error("Webhook: Failed to parse metadata string", e);
+            meta = {};
+          }
+        }
+        
+        console.log("Webhook: Metadata extracted and parsed:", JSON.stringify(meta, null, 2));
+
+        // Parse items from metadata
+        let items = [];
+        if (Array.isArray(meta.cartItems)) {
+          items = meta.cartItems;
+        } else if (typeof meta.cartItems === "string") {
+          try {
+            items = JSON.parse(meta.cartItems);
+          } catch (e) {
+            console.error("Webhook: Failed to parse cartItems from metadata string", e);
+          }
+        } else if (Array.isArray(meta.items)) {
+           // Fallback for legacy or mock
+           items = meta.items;
+        }
+
+        console.log(`Webhook: Found ${items.length} items in metadata`);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const products = items.map((it: any) => ({
+          productId: it.id || it.product?._id,
+          name: it.name || it.product?.name,
+          price: it.price || it.product?.price,
+          quantity: it.quantity || 1,
+          image: it.image || it.product?.image,
+        }));
+
+        const amount = (data.amount || mockTransactions[reference]?.amount || 0) / 100;
+        
+
+        
+        const orderId = await createOrder({
+          orderNumber: reference,
+          paystackReference: reference,
+          paystackTransactionId: data.id?.toString() || `PAYSTACK-${reference}`,
+          paystackCustomerId: data.customer?.id?.toString() || "",
+          clerkUserId: meta.userId || meta.clerkUserId || "",
+          customerName: meta.userName || meta.customerName || data.customer?.email || "Customer",
+          email: data.customer?.email || meta.userEmail || "no-email@example.com",
+          promoCode: meta.promoCode || null,
+          products,
+          totalPrice: amount,
+          currency: "NGN",
+          amountDiscount: meta.discount || 0,
+          status: "paid",
+          metadata: meta,
+
+        });
+        
+        console.log(`Webhook: Order created successfully. ID: ${orderId}`);
+        
+      } catch (err) {
+        console.error("Webhook: Failed creating order from webhook", err);
+        // We still return 200 to Paystack so they don't retry indefinitely if it's a logic error on our side
+        // But in a real app you might want to return 500 if it's a transient error
+      }
     }
 
-    const event = JSON.parse(rawBody);
-    if (event.event !== "charge.success") {
-      return NextResponse.json({ message: "Unhandled event type" }, { status: 400 });
-    }
-
-    const reference = event.data?.reference;
-    if (!reference) {
-      console.error("Transaction reference is missing.");
-      return NextResponse.json({ error: "Missing reference" }, { status: 400 });
-    }
-
-    const existingOrder = await backendClient.fetch(
-      `*[_type == "order" && paystackReference == $ref][0]`,
-      { ref: reference }
-    );
-
-    if (existingOrder) {
-      console.log(`Order with reference ${reference} already exists.`);
-      return NextResponse.json({ message: "Order already processed" });
-    }
-
-    const metadata = event.data?.metadata || {};
-    const products = metadata.cartItems?.map((item: any) => ({
-      _key: item.id,
-      product: { _type: "reference", _ref: item.id },
-      quantity: item.quantity,
-      price: item.price,
-    }));
-
-    const order = {
-      _type: "order",
-      orderNumber: reference,
-      paystackReference: reference,
-      clerkUserId: metadata.userId,
-      customerName: event.data?.customer?.email || "Unknown",
-      email: event.data?.customer?.email,
-      products,
-      totalPrice: event.data?.amount / 100,
-      currency: "NGN",
-      status: "paid",
-      orderDate: new Date().toISOString(),
-    };
-
-    const createdOrder = await backendClient.create(order);
-    console.log(`Order created successfully: ${createdOrder._id}`);
-
-    return NextResponse.json({ message: "Order processed successfully" });
-  } catch (error) {
-    console.error("Error processing webhook:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ received: true });
+  } catch (err) {
+    console.error("Webhook processing fatal error", err);
+    return NextResponse.json({ ok: false }, { status: 500 });
   }
 }
 

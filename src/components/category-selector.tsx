@@ -6,7 +6,7 @@ interface CategorySelectorProps {
   categories: Array<{
     _id: string;
     title?: string;
-    slug?: string;
+    slug?: { current?: string };
     description?: string;
     productCount?: number;
   }>;
@@ -15,7 +15,7 @@ interface CategorySelectorProps {
 export function CategorySelectorComponent({ categories }: CategorySelectorProps) {
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("");
-  const [expanded, setExpanded] = useState<string | null>(null);
+  // const [expanded, setExpanded] = useState<string | null>(null); // Removed to fix unused-vars
   const router = useRouter();
   const params = useSearchParams();
 
@@ -69,7 +69,7 @@ export function CategorySelectorComponent({ categories }: CategorySelectorProps)
                 <div className="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-purple-50 transition-colors">
                   <div className="flex-1">
                     <button
-                      onClick={() => applyCategory(cat.slug)}
+                      onClick={() => applyCategory(cat.slug?.current)}
                       className="text-left font-bold text-sm text-gray-800 group-hover:text-purple-600 transition-colors"
                     >
                       {cat.title}

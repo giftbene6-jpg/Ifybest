@@ -50,7 +50,8 @@ export async function createPaystackTransaction(
   amount: number, // in kobo (NGN × 100)
   reference: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  metadata?: Record<string, any>
+  metadata?: Record<string, any>,
+  callback_url?: string
 ) {
   const init = initPaystack();
 
@@ -65,7 +66,15 @@ export async function createPaystackTransaction(
       createdAt: Date.now(),
     };
 
-    const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    let base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    if (callback_url) {
+      try {
+        const cbUrl = new URL(callback_url);
+        base = cbUrl.origin;
+      } catch (e) {
+        console.warn("Invalid callback_url in createPaystackTransaction", e);
+      }
+    }
     const authorization_url = `${base}/api/checkout/mock-redirect?reference=${encodeURIComponent(reference)}`;
     return { status: true, data: { authorization_url, access_code: `MOCK-${reference}` } };
   }
@@ -87,6 +96,7 @@ export async function createPaystackTransaction(
       amount,
       reference,
       metadata: metadata || {},
+      callback_url,
     }),
   });
 

@@ -3,9 +3,9 @@ import { Product } from "../../sanity.types";
 import Image from "next/image";
 import { imageUrl } from "@/lib/imageUrl";
 import React from "react";
-import AddToBasketButton from "./AddToBasketButton";
+import { Sale } from "./types";
 
-function ProductThumb ({product, sale}: {product: Product, sale?: any}) {
+function ProductThumb ({product, sale}: {product: Product, sale?: Sale | null}) {
   const isOutOfStock = product.stock != null && product.stock <= 0;
   
   const discountAmount = sale?.isActive ? sale.discountAmount : 0;

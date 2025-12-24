@@ -15,6 +15,12 @@ export async function POST(req: NextRequest) {
     // Generate unique reference
     const reference = `ORDER-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
+    // Determine the base URL dynamically from the request headers or fallback to env/localhost
+    const host = req.headers.get("host") || "localhost:3000";
+    const protocol = host.includes("localhost") ? "http" : "https";
+    const base = `${protocol}://${host}`;
+    const callback_url = `${base}/checkout/success`;
+
     // Initialize Paystack transaction
     const paystackResponse = await createPaystackTransaction(
       email,
@@ -27,7 +33,8 @@ export async function POST(req: NextRequest) {
         userName: customerName,
         promoCode: promoCode || null,
         discount: discount,
-      }
+      },
+      callback_url
     );
 
     if (!paystackResponse.status) {

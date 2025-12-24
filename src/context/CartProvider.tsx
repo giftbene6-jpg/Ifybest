@@ -9,6 +9,16 @@ type CartItem = {
   quantity: number;
 };
 
+interface Sale {
+  _id: string;
+  discountAmount: number;
+  isActive: boolean;
+  title?: string;
+  couponCode?: string;
+  validFrom?: string;
+  validUntil?: string;
+}
+
 type CartContextValue = {
   items: CartItem[];
   addToCart: (product: Product, qty?: number) => void;
@@ -18,7 +28,7 @@ type CartContextValue = {
   totalItems: number;
   totalPrice: number;
   discountedTotal: number;
-  activeSale: any;
+  activeSale: Sale | null;
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
@@ -32,7 +42,7 @@ const STORAGE_KEY = "chips_cart_v1";
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [activeSale, setActiveSale] = useState<any>(null);
+  const [activeSale, setActiveSale] = useState<Sale | null>(null);
 
   useEffect(() => {
     try {

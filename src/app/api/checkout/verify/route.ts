@@ -56,15 +56,30 @@ export async function GET(req: Request) {
     }
 
     const verification = await verifyPaystackTransaction(reference);
-    if (!verification.status) return NextResponse.json({ error: "Payment verification failed" }, { status: 400 });
+    
+    if (!verification.status) {
+      console.error(`Verify API: Paystack verification failed for ${reference}`, verification.message);
+      return NextResponse.json({ error: "Payment verification failed" }, { status: 400 });
+    }
 
-    const { data } = verification;
+    const data = verification.data || {};
     const orderNumber = reference;
     const email = data.customer?.email || "";
     const amount = (data.amount || 0) / 100;
-    const meta = data.metadata || {};
     
-    // Parse items
+    // Robust Metadata Parsing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let meta: any = data.metadata || {};
+    if (typeof meta === "string") {
+      try {
+        meta = JSON.parse(meta);
+      } catch (e) {
+        console.error("Verify API: Failed to parse metadata string", e);
+        meta = {};
+      }
+    }
+    
+    // Parse items from various possible locations in metadata
     let items = [];
     if (Array.isArray(meta.cartItems)) {
         items = meta.cartItems;
@@ -72,9 +87,10 @@ export async function GET(req: Request) {
         try { items = JSON.parse(meta.cartItems); } catch { /* empty */ }
     } else if (Array.isArray(meta.items)) {
         items = meta.items;
+    } else if (typeof meta.items === "string") {
+        try { items = JSON.parse(meta.items); } catch { /* empty */ }
     }
 
-    // If payment succeeded, create an order in Sanity (idempotent)
     try {
       if (data.status === "success") {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -102,6 +118,8 @@ export async function GET(req: Request) {
             status: "paid",
             metadata: meta,
           });
+      } else {
+          console.warn(`Verify API: Payment status is ${data.status} for ${reference}`);
       }
     } catch (err) {
       console.error("Failed to create order in Sanity after verification", err);

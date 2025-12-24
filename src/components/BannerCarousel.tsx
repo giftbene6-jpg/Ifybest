@@ -3,9 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface Sale {
-  [key: string]: any;
-}
+import { Sale } from "./types";
 
 const slides = [
   {

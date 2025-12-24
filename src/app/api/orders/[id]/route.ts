@@ -20,7 +20,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       paystackReference,
       paystackTransactionId,
       currency,
-      products[]{ quantity, product->{_id, name, price, currency, image} }
+      products[]{ 
+        quantity, 
+        price,
+        name,
+        image,
+        product->{_id, name, price, currency, image} 
+      }
     }`;
 
     const order = await backendClient.fetch(query, { id });

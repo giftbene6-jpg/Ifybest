@@ -34,14 +34,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ orders });
   } catch (err) {
-    // Add detailed error logging to debug the issue
-    console.error("Error fetching orders:", err);
-    // Add more detailed error logging to identify the root cause
-    console.error("Error details:", {
-      message: err.message,
-      stack: err.stack,
-      name: err.name,
-    });
+    console.error("Fetch orders error", err);
     return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
   }
 }
