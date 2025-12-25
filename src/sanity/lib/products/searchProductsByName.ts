@@ -1,5 +1,6 @@
 import { defineQuery } from "next-sanity"
 import { sanityFetch } from "../live";
+import { PRODUCT_SEARCH_QUERYResult } from "../../../../sanity.types";
 
 export const searchProductsByName = async (searchParam?: string, category?: string) => {
   const PRODUCT_SEARCH_QUERY = defineQuery(`
@@ -13,7 +14,7 @@ export const searchProductsByName = async (searchParam?: string, category?: stri
     const sp = searchParam?.trim() ?? "";
     const cat = category?.trim() ?? "";
 
-    const products = await sanityFetch({
+    const products = await sanityFetch<PRODUCT_SEARCH_QUERYResult>({
       query: PRODUCT_SEARCH_QUERY,
       params: {
         searchParam: sp ? `${sp}*` : "",

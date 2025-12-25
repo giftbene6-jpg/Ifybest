@@ -1,5 +1,6 @@
 import { defineQuery } from "next-sanity";
 import { sanityFetch } from "../live";
+import { ACTIVE_SALE_QUERYResult } from "../../../../sanity.types";
 
 export const getActiveSale = async () => {
   const ACTIVE_SALE_QUERY = defineQuery(`
@@ -7,7 +8,7 @@ export const getActiveSale = async () => {
   `);
 
   try {
-    const activeSale = await sanityFetch({
+    const activeSale = await sanityFetch<ACTIVE_SALE_QUERYResult>({
       query: ACTIVE_SALE_QUERY,
     });
     return activeSale ? activeSale.data : null;

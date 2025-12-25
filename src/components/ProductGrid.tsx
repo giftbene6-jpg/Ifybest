@@ -1,8 +1,7 @@
 "use client";
 
-import { Product } from "../../sanity.types";
+import { Product, Sale } from "../../sanity.types";
 import ProductThumb from "./ProductThumb";
-import { Sale } from "./types";
 
 function ProductGrid ({products, sale}: {products: Product[], sale?: Sale | null}) {
 return (

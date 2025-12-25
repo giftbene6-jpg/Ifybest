@@ -1,5 +1,6 @@
 import { defineQuery } from "next-sanity";
 import { sanityFetch } from "../live";
+import { ALL_PRODUCTS_QUERYResult } from "../../../../sanity.types";
 
 export const getAllProducts = async () => {
   const ALL_PRODUCTS_QUERY = defineQuery(`
@@ -9,7 +10,7 @@ export const getAllProducts = async () => {
     `);
     try{
 //use sanityFetch to send the query//
-const products = await sanityFetch({
+const products = await sanityFetch<ALL_PRODUCTS_QUERYResult>({
   query: ALL_PRODUCTS_QUERY,
 })
 //Return the list of products , or an empty array if none are found//

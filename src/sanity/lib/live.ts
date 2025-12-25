@@ -1,7 +1,7 @@
 import "server-only";
 import { client } from "./client";
 
-export async function sanityFetch<QueryResponse = any>({
+export async function sanityFetch<T = unknown>({
   query,
   params = {},
 }: {
@@ -9,8 +9,8 @@ export async function sanityFetch<QueryResponse = any>({
   params?: Record<string, unknown>;
   revalidate?: number | false;
   tags?: string[];
-}): Promise<{ data: QueryResponse }> {
-  const data = await client.fetch<QueryResponse>(query, params);
+}): Promise<{ data: T }> {
+  const data = await client.fetch<T>(query, params);
   return { data };
 }
 

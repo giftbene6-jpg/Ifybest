@@ -1,6 +1,6 @@
 import { defineQuery } from "next-sanity";
-
 import { sanityFetch } from "../live";
+import { ACTIVE_SALE_BY_COUPON_QUERYResult } from "../../../../sanity.types";
 
 export const getActiveSaleByCouponCode = async (couponCode: string) => {
   const ACTIVE_SALE_BY_COUPON_QUERY = defineQuery(`
@@ -11,7 +11,7 @@ export const getActiveSaleByCouponCode = async (couponCode: string) => {
     `);
 
     try {
-      const activeSale = await sanityFetch({
+      const activeSale = await sanityFetch<ACTIVE_SALE_BY_COUPON_QUERYResult>({
         query: ACTIVE_SALE_BY_COUPON_QUERY,
         params: {
           couponCode,

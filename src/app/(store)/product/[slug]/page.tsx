@@ -22,7 +22,7 @@ async function Page ({
   }
   const isOutOfStock = product.stock != null && product.stock <= 0;
   const sale = await getActiveSale();
-  const discountAmount = sale?.isActive ? sale.discountAmount : 0;
+  const discountAmount = sale?.isActive ? (sale.discountAmount ?? 0) : 0;
   const price = product.price ?? 0;
   const discountedPrice = discountAmount > 0 ? price * (1 - discountAmount / 100) : price;
 

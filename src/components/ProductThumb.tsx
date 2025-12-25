@@ -1,14 +1,13 @@
 import Link from "next/link";
-import { Product } from "../../sanity.types";
+import { Product, Sale } from "../../sanity.types";
 import Image from "next/image";
 import { imageUrl } from "@/lib/imageUrl";
 import React from "react";
-import { Sale } from "./types";
 
 function ProductThumb ({product, sale}: {product: Product, sale?: Sale | null}) {
   const isOutOfStock = product.stock != null && product.stock <= 0;
   
-  const discountAmount = sale?.isActive ? sale.discountAmount : 0;
+  const discountAmount = sale?.isActive ? (sale.discountAmount ?? 0) : 0;
   const price = product.price ?? 0;
   const discountedPrice = discountAmount > 0 ? price * (1 - discountAmount / 100) : price;
 

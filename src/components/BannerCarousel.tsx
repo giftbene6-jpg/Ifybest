@@ -81,7 +81,7 @@ export default function BannerCarousel({ sale }: { sale: Sale }) {
                 transition={{ delay: 0.6 }}
                 className="text-xl md:text-2xl font-medium max-w-lg mx-auto md:mx-0"
               >
-                 Get <span className={slide.accent + " font-black text-3xl"}>{sale.discountAmount}% OFF</span> Everything!
+                 Get <span className={slide.accent + " font-black text-3xl"}>{sale.discountAmount ?? 0}% OFF</span> Everything!
               </motion.p>
             </div>
 

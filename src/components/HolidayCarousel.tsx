@@ -3,13 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
-interface Sale {
-  _id: string;
-  title?: string;
-  description?: string;
-  couponCode?: string;
-  discountAmount?: number;
-}
+import { Sale } from "../../sanity.types";
 
 interface HolidayCarouselProps {
   sales: Sale[];

@@ -1,5 +1,6 @@
 import { defineQuery } from "next-sanity";
 import { sanityFetch } from "../live";
+import { PRODUCT_BY_ID_QUERYResult } from "../../../../sanity.types";
 
 export const getProductBySlug = async (slug: string) => {
   const PRODUCT_BY_ID_QUERY = defineQuery(`
@@ -9,7 +10,7 @@ export const getProductBySlug = async (slug: string) => {
     `);
     try{
 //use sanityFetch to send the query//
-const product = await sanityFetch({
+const product = await sanityFetch<PRODUCT_BY_ID_QUERYResult>({
   query: PRODUCT_BY_ID_QUERY,
   params: {
     slug,
