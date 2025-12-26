@@ -49,20 +49,20 @@ const Footer = () => {
           <p className="text-gray-400 leading-relaxed max-w-xs text-xs sm:text-sm">
             Experience the perfect blend of classic elegance and vibrant modern style. Simple shopping, premium living.
           </p>
-            <div className="flex items-center space-x-3 sm:space-x-4">
-            {socialLinks.map(({ name, Icon, href }) => (
-              <a 
-                key={name} 
-                href={href} 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-400 hover:border-[#D4AF37] hover:text-[#D4AF37] hover:scale-110 transition-all duration-300 shadow-lg"
-              >
-                <span className="sr-only">{name}</span>
-                <Icon size={20} strokeWidth={1.5} />
-              </a>
-            ))}
-          </div>
+            <div className="flex items-center space-x-3">
+              {socialLinks.map(({ name, Icon, href }) => (
+                <a 
+                  key={name} 
+                  href={href} 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-400 hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all hover:scale-110"
+                >
+                  <span className="sr-only">{name}</span>
+                  <Icon size={20} strokeWidth={2} />
+                </a>
+              ))}
+            </div>
         </div>
 
         {/* Shop */}

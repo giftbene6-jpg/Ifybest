@@ -53,18 +53,18 @@ TO KNOW IF USER IS LOGGED IN
         {/* For robustness at 320px, we use a grid that becomes flex on larger screens if needed, 
             or just keep it simple with nested flex which we have now but more controlled. */}
         <div className="flex flex-col gap-y-3 sm:gap-y-4">
-          <div className="flex flex-row flex-nowrap justify-between items-center w-full">
+          <div className="grid grid-cols-[auto_1fr] items-center w-full gap-4">
             {/* Brand Section */}
             <Link 
               href="/"
-              className="text-xl sm:text-2xl md:text-4xl font-serif tracking-widest lux-gradient-text hover:scale-105 transition-all duration-500 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[140px] sm:max-w-none"
+              className="text-xl sm:text-2xl md:text-3xl font-serif tracking-widest lux-gradient-text hover:scale-105 transition-all duration-500 font-medium whitespace-nowrap"
               style={{ fontFamily: 'var(--font-playfair)' }}
             >
               IFYBEST
             </Link>
 
             {/* Navigation & User Area */}
-            <div className="flex flex-row flex-nowrap items-center space-x-3 sm:space-x-10">
+            <div className="flex flex-row items-center justify-end space-x-3 sm:space-x-8">
               <Link
                 href="/basket"
                 className="group relative flex items-center space-x-2 text-gray-800 transition-all duration-500"
@@ -72,7 +72,7 @@ TO KNOW IF USER IS LOGGED IN
                 <div className="relative">
                   <TrolleyIcon className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-[#D4AF37] transition-colors"/>
                   {totalItems > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 bg-black text-[#D4AF37] text-[7px] sm:text-[8px] font-bold w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-none flex items-center justify-center border border-[#D4AF37]/20 shadow-lg animate-in zoom-in duration-300">
+                    <span className="absolute -top-1.5 -right-1.5 bg-black text-[#D4AF37] text-[7px] sm:text-[8px] font-bold w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-none flex items-center justify-center border border-[#D4AF37]/20 shadow-lg">
                       {totalItems}
                     </span>
                   )}
@@ -90,29 +90,28 @@ TO KNOW IF USER IS LOGGED IN
                     <div className="relative">
                       <PackageIcon className="w-5 h-5 sm:w-6 sm:h-6 group-hover:text-[#D4AF37] transition-colors"/>
                       {orderCount > 0 && (
-                        <span className="absolute -top-1.5 -right-1.5 bg-[#D4AF37] text-white text-[7px] sm:text-[8px] font-bold w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-none flex items-center justify-center border border-white shadow-lg animate-in zoom-in duration-300">
+                        <span className="absolute -top-1.5 -right-1.5 bg-[#D4AF37] text-white text-[7px] sm:text-[8px] font-bold w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-none flex items-center justify-center border border-white shadow-lg">
                           {orderCount}
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase hidden lg:block group-hover:text-[#D4AF37] transition-colors">Orders</span>
                   </Link>
                 </SignedIn>
 
                 {user ? (
-                  <div className="flex items-center border-l border-[#D4AF37]/10 pl-2 sm:pl-10 h-6 sm:h-8">
+                  <div className="h-6 sm:h-8 border-l border-[#D4AF37]/10 pl-3">
                     <UserButton 
                       appearance={{ 
                         elements: { 
-                          userButtonAvatarBox: "w-7 h-7 sm:w-9 sm:h-9 border border-[#D4AF37]/10 p-0.5 hover:border-[#D4AF37]/40 transition-all duration-500" 
+                          userButtonAvatarBox: "w-7 h-7 sm:w-8 sm:h-8 border border-[#D4AF37]/10 p-0.5" 
                         } 
                       }} 
                     />
                   </div>
                 ) : (
-                  <div className="border-l border-[#D4AF37]/10 pl-2 sm:pl-10">
+                  <div className="border-l border-[#D4AF37]/10 pl-3">
                     <SignInButton mode="modal">
-                      <button className="text-[9px] sm:text-[10px] font-bold tracking-[0.1em] sm:tracking-[0.3em] uppercase lux-gradient-text hover:opacity-70 transition-all">Sign In</button>
+                      <button className="text-[10px] font-bold tracking-widest uppercase lux-gradient-text">Sign In</button>
                     </SignInButton>
                   </div>
                 )}
