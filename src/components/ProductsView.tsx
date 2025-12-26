@@ -13,7 +13,7 @@ const ProductsView = ({ products, categories, sale }: ProductsViewProps) => {
   return (
   <div className="flex flex-col">
     {/*categories */}
-    <div className="flex flex-col md:flex-row items-center justify-end w-full mb-12 gap-8">
+    <div className="flex flex-col md:flex-row items-center justify-center md:justify-end w-full mb-12 gap-8">
       <CategorySelectorComponent categories={categories} />
     </div>
 
