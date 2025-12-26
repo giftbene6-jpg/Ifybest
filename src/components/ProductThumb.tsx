@@ -41,23 +41,23 @@ function ProductThumb ({product, sale}: {product: Product, sale?: Sale | null}) 
         )}
       </div>
 
-      <div className="p-6 flex flex-col flex-1">
-        <h2 className="text-base font-bold text-gray-900 line-clamp-1 mb-2 group-hover:text-purple-600 transition-colors duration-300">{product.name}</h2>
+      <div className="p-4 sm:p-6 flex flex-col flex-1">
+        <h2 className="text-sm sm:text-base font-bold text-gray-900 line-clamp-1 mb-1 sm:mb-2 group-hover:text-purple-600 transition-colors duration-300">{product.name}</h2>
         
-        <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-50">
+        <div className="flex items-center justify-between mt-auto pt-3 sm:pt-4 border-t border-gray-50">
           <div className="flex flex-col">
             {discountAmount > 0 && (
-              <span className="text-[10px] text-gray-400 line-through mb-0.5">
+              <span className="text-[8px] sm:text-[10px] text-gray-400 line-through mb-0.5">
                 ₦{price.toLocaleString("en-NG")}
               </span>
             )}
-            <p className="text-xl font-black premium-gradient-text tracking-tighter">
+            <p className="text-lg sm:text-xl font-black premium-gradient-text tracking-tighter">
               ₦{discountedPrice.toLocaleString("en-NG")}
             </p>
           </div>
           
-          <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-purple-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
-            <span className="text-lg font-light">→</span>
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-purple-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
+            <span className="text-base sm:text-lg font-light">→</span>
           </div>
         </div>
       </div>

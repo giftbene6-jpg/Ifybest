@@ -106,6 +106,16 @@ export const orderType = defineType({
               title: "Price at Purchase",
               type: "number",
             }),
+            defineField({
+              name: "name",
+              title: "Product Name",
+              type: "string",
+            }),
+            defineField({
+              name: "image",
+              title: "Product Image",
+              type: "image",
+            }),
           ],
           preview: {
             select: {

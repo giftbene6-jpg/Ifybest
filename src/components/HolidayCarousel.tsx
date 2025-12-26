@@ -61,33 +61,33 @@ const HolidayCarousel = ({ sales }: HolidayCarouselProps) => {
               </div>
             </div>
 
-            <div className="relative h-full flex flex-col items-center justify-center text-center px-6 py-12 text-white z-10">
-              <div className="animate-bounce mb-4 text-4xl">
+            <div className="relative h-full flex flex-col items-center justify-center text-center px-4 sm:px-6 py-8 sm:py-12 text-white z-10">
+              <div className="animate-bounce mb-3 sm:mb-4 text-3xl sm:text-4xl">
                 {index % 2 === 0 ? "🎄" : "🎆"}
               </div>
-              <h4 className="text-sm font-black uppercase tracking-[0.3em] mb-4 bg-white/20 px-4 py-1 rounded-full backdrop-blur-sm">
+              <h4 className="text-[10px] sm:text-sm font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-3 sm:mb-4 bg-white/20 px-3 sm:px-4 py-1 rounded-full backdrop-blur-sm">
                 Holiday Special
               </h4>
-              <h2 className="text-4xl md:text-7xl font-black mb-6 tracking-tighter leading-tight">
+              <h2 className="text-3xl sm:text-5xl md:text-7xl font-black mb-4 sm:mb-6 tracking-tighter leading-tight px-2">
                 {sale.title?.toUpperCase() || "HOLIDAY SALE"}
               </h2>
-              <p className="text-lg md:text-xl font-medium opacity-90 max-w-2xl mb-10 leading-relaxed">
+              <p className="text-sm sm:text-lg md:text-xl font-medium opacity-90 max-w-2xl mb-6 sm:mb-10 leading-relaxed px-4">
                 {sale.description}
               </p>
 
-              <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="bg-white/95 text-gray-900 px-8 py-4 rounded-2xl shadow-2xl flex flex-col items-center transform hover:scale-105 transition-transform">
-                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Coupon Code</span>
-                   <span className="text-3xl font-black text-red-600 tracking-tighter">{sale.couponCode}</span>
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                <div className="bg-white/95 text-gray-900 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl flex flex-col items-center transform hover:scale-105 transition-transform">
+                   <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5 sm:mb-1">Coupon Code</span>
+                   <span className="text-2xl sm:text-3xl font-black text-red-600 tracking-tighter">{sale.couponCode}</span>
                 </div>
                 
-                <div className="text-3xl font-black bg-yellow-400 text-gray-900 px-6 py-4 rounded-2xl rotate-3 shadow-lg">
-                  {sale.discountAmount}% OFF!
+                <div className="text-2xl sm:text-3xl font-black bg-yellow-400 text-gray-900 px-5 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl rotate-3 shadow-lg">
+                   {sale.discountAmount}% OFF!
                 </div>
               </div>
 
               <Link href="/search">
-                <button className="mt-12 bg-white text-gray-900 px-12 py-4 rounded-full font-black text-lg hover:bg-black hover:text-white transition-all shadow-xl active:scale-95">
+                <button className="mt-8 sm:mt-12 bg-white text-gray-900 px-8 sm:px-12 py-3 sm:py-4 rounded-full font-black text-base sm:text-lg hover:bg-black hover:text-white transition-all shadow-xl active:scale-95">
                   SHOP THE COLLECTION
                 </button>
               </Link>
