@@ -1,6 +1,6 @@
 import { defineQuery } from "next-sanity";
 import { sanityFetch } from "../live";
-import { ALL_CATEGORIES_QUERYResult } from "../../../../sanity.types";
+import { ALL_CATEGORIES_QUERY_RESULT } from "../../../../sanity.types";
 
 export const getAllCategories = async () => {
   const ALL_CATEGORIES_QUERY = defineQuery(`
@@ -15,7 +15,7 @@ export const getAllCategories = async () => {
     `);
     try{
 //use sanityFetch to send the query//
-const categories = await sanityFetch<ALL_CATEGORIES_QUERYResult>({
+const categories = await sanityFetch<ALL_CATEGORIES_QUERY_RESULT>({
   query: ALL_CATEGORIES_QUERY,
 })
 //Return the list of products , or an empty array if none are found//
