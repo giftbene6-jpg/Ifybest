@@ -46,7 +46,7 @@ export function CategorySelectorComponent({ categories }: CategorySelectorProps)
       </button>
 
       {open && (
-        <div className="absolute right-0 z-40 mt-4 w-72 bg-white border border-gray-100 shadow-2xl rounded-3xl p-6 overflow-hidden">
+        <div className="absolute left-1/2 sm:left-auto sm:right-0 -translate-x-1/2 sm:translate-x-0 z-40 mt-4 w-[calc(100vw-40px)] sm:w-72 bg-white border border-gray-100 shadow-2xl rounded-3xl p-6 overflow-hidden">
           <input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
